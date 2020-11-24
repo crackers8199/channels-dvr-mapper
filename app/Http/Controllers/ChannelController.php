@@ -17,9 +17,20 @@ class ChannelController extends Controller
         $this->channelsBackend = new ChannelsBackendService();
     }
 
+    // todo: add title tags and whatnot to views
     public function index()
     {
-        return view('index', ['devices' => $this->channelsBackend->getDevices()]);
+        $devices = $this->channelsBackend->getDevices();
+
+        if($devices->count() > 0) {
+            return view('index', ['devices' => $devices]);
+        }
+        else {
+            return view('empty', [
+                'channels_ip' => env('CHANNELS_BACKEND_IP'),
+                'channels_port' => env('CHANNELS_BACKEND_PORT'),
+            ]);
+        }
     }
 
     public function list(Request $request)
