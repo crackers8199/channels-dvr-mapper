@@ -26,10 +26,7 @@ class ChannelController extends Controller
             return view('index', ['devices' => $devices]);
         }
         else {
-            return view('empty', [
-                'channels_ip' => env('CHANNELS_BACKEND_IP'),
-                'channels_port' => env('CHANNELS_BACKEND_PORT'),
-            ]);
+            return view('empty', ['channelsBackendUrl' => $this->channelsBackend->getBaseUrl()]);
         }
     }
 

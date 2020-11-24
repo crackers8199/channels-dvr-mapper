@@ -1,11 +1,11 @@
 <html>
 <body>
 
-<br />available backend lineups:
-@foreach($devices as $device)
-    | <a href="{{ route('getChannelMapUI', ['lineup' => $device]) }}">{{ $device }}</a>
-@endforeach
-|<br />
+<p>available backend lineups:
+    @foreach($devices as $device)
+        | <a href="{{ route('getChannelMapUI', ['lineup' => $device]) }}">{{ $device }}</a>
+    @endforeach
+    |</p>
 
 <h1>Mapping Channels for Lineup: {{ $channelLineup }}</h1>
 
