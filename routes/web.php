@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChannelController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ChannelController::class, 'index']);
+
+Route::get('/channels/{lineup}', [ChannelController::class, 'list'])
+    ->name('getChannelMapUI');
+
+Route::post('/channels/{lineup}/map', [ChannelController::class, 'map'])
+    ->name('applyChannelMap');
+

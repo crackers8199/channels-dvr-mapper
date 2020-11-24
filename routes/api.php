@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChannelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/channels/{lineup}/playlist', [ChannelController::class, 'playlist']);
+Route::get('/channels/{lineup}/xmltv', [ChannelController::class, 'xmltv']);
