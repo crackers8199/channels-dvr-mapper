@@ -29,7 +29,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "facade/ignition"
+            ]
         }
     },
     "autoload": {

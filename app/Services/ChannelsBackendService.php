@@ -38,8 +38,9 @@ class ChannelsBackendService
     public function getGuideData($device, $startTimestamp, $duration)
     {
         $url = sprintf(
-            'http://192.168.88.165:8089/devices/%s/guide?time=%d&duration=%d',
-            $device, $startTimestamp, $duration);
+            '%s/devices/%s/guide?time=%d&duration=%d',
+            $this->baseUrl, $device, $startTimestamp, $duration
+        );
         $json = file_get_contents($url);
         return json_decode($json);
     }

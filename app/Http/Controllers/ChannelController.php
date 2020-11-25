@@ -146,81 +146,43 @@ class ChannelController extends Controller
             $guideData = $this->channelsBackend
                 ->getGuideData($source, $guideTime->timestamp, $guideChunkDuration);
 
-            foreach($guideData as $data) {
-
-                $mappedChannelNum =
+            foreach($guideData as &$data) {
+                $channelId =
                     $existingChannels->search($data->Channel->Number) ?? $data->Channel->Number;
 
-                $channelId = $mappedChannelNum;
+                $data->Channel->channelId = $channelId;
 
-                echo "\t<channel id=\"" . $channelId . "\">\n";
-                printf("\t\t<display-name>%s %s</display-name>\n", $mappedChannelNum, $data->Channel->Name);
+                $data->Channel->displayNames = [
+                    sprintf("%s %s", $data->Channel->channelId, $data->Channel->Name),
+                    $data->Channel->channelId,
+                    $data->Channel->Name,
+                ];
 
                 if(isset($data->Channel->Station)) {
-                    printf("\t\t<display-name>%s %s %s</display-name>\n",
-                        $mappedChannelNum, $data->Channel->Name, $data->Channel->Station);
+                    $data->Channel->displayNames[] = sprintf(
+                        "%s %s %s",
+                        $data->Channel->channelId,
+                        $data->Channel->Name,
+                        $data->Channel->Station);
+
                 }
 
-                printf("\t\t<display-name>%s</display-name>\n", $mappedChannelNum);
-                printf("\t\t<display-name>%s</display-name>\n", $data->Channel->Name);
+                foreach($data->Airings as &$air) {
 
-                if (isset($data->Channel->Image)) {
-                    echo "\t\t<icon src=\"" . $data->Channel->Image . "\" />\n";
-                }
-                echo "\t</channel>\n";
+                    $air->startTime =
+                        Carbon::createFromTimestamp($air->Time, 'America/Los_Angeles');
+                    $air->endTime = $air->startTime->copy()->addSeconds($air->Duration);
 
-                foreach($data->Airings as $air) {
-
-                    $startTime = Carbon::createFromTimestamp($air->Time, 'America/Los_Angeles');
-                    $endTime = $startTime->copy()->addSeconds($air->Duration);
-
-                    printf("\t<programme start=\"%s -0800\" stop=\"%s -0800\" channel=\"%s\">\n",
-                        $startTime->format('YmdHis'),
-                        $endTime->format('YmdHis'),
-                        $channelId);
-
-                    printf("\t\t<title lang=\"en\">%s</title>\n", htmlspecialchars($air->Title));
-
-                    if(isset($air->EpisodeTitle)) {
-                        printf("\t\t<sub-title lang=\"en\">%s</sub-title>\n", htmlspecialchars($air->EpisodeTitle));
-                    }
-
-                    printf("\t\t<desc lang=\"en\">%s</desc>\n", htmlspecialchars($air->Summary));
-
-                    if(isset($air->OriginalDate)) {
-                        printf("\t\t<date>%s</date>\n", Carbon::parse($air->OriginalDate)->format('Ymd'));
-                    }
-
-                    // cycle through categories here
-                    foreach(($air->Categories ?? []) as $cat) {
-                        printf("\t\t<category>%s</category>\n", htmlspecialchars($cat));
-                    }
-
-                    if(isset($air->Image)) {
-                        printf("\t\t<icon src=\"%s\" />\n", $air->Image);
-                    }
-
-                    if($air->SeasonNumber != 0 && $air->EpisodeNumber != 0) {
-                        printf(
-                            "\t\t<episode-num system=\"xmltv_ns\">%d.%d.</episode-num>\n",
-                            ($air->SeasonNumber-1), ($air->EpisodeNumber-1)
-                        );
-                    }
-
-                    // search Tags for New
-                    if(collect($air->Tags)->search('New') !== false) {
-                        printf("\t\t<new />\n");
-                    }
-
-                    echo "\t</programme>\n";
+                    $air->channelId = $channelId;
 
                 }
 
             }
 
+            echo view('channels.xmltv.full', ['guideData' => $guideData]);
             $guideTime->addSeconds($guideChunkDuration);
 
         }
-        echo "</tv>";
+
     }
 }
