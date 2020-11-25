@@ -1,13 +1,9 @@
-<html>
-<body>
+@extends('layouts.main')
 
-<p>available backend sources:
-    @foreach($sources as $source)
-        | <a href="{{ route('getChannelMapUI', ['source' => $source]) }}">{{ $source }}</a>
-    @endforeach
-    |</p>
+@section('content')
+<h1>{{ $source }}</h1>
 
-<h1>Mapping Channels for Source: {{ $source }}</h1>
+@include('channels.includes.routeLinks')
 
 <form action="{{ route('applyChannelMap', ['source' => $source]) }}" method="POST">
 @csrf
@@ -36,6 +32,4 @@
 <br />
 <input type="submit" value="Save Channel Map" />
 </form>
-
-</body>
-</html>
+@endsection

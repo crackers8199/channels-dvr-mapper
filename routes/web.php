@@ -22,3 +22,9 @@ Route::get('/channels/{source}', [ChannelController::class, 'list'])
 Route::post('/channels/{source}/map', [ChannelController::class, 'map'])
     ->name('applyChannelMap');
 
+Route::get('/channels/{source}/playlist', [ChannelController::class, 'playlist'])
+    ->name('sourcePlaylist');
+
+Route::get('/channels/{source}/xmltv', [ChannelController::class, 'xmltv'])
+    ->name('sourceXmlTv');
+

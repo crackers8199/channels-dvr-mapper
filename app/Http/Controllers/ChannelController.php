@@ -17,13 +17,15 @@ class ChannelController extends Controller
         $this->channelsBackend = new ChannelsBackendService();
     }
 
-    // todo: add title tags and whatnot to views
     public function index()
     {
         $sources = $this->channelsBackend->getDevices();
 
         if($sources->count() > 0) {
-            return view('index', ['sources' => $sources]);
+            return view('layouts.main', [
+                'sources' => $sources,
+                'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
+            ]);
         }
         else {
             return view('empty', ['channelsBackendUrl' => $this->channelsBackend->getBaseUrl()]);
@@ -53,11 +55,12 @@ class ChannelController extends Controller
 
         }
 
-        return view('channels',
+        return view('channels.map',
             [
                 'channels' => $channels,
                 'source' => $source,
                 'sources' => $this->channelsBackend->getDevices(),
+                'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
             ]
         );
 
