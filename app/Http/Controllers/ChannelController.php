@@ -101,31 +101,19 @@ class ChannelController extends Controller
             throw new Exception('Invalid source detected.');
         }
 
-        $scannedChannels = $this->channelsBackend->getScannedChannels($source);
+        $scannedChannels = collect($this->channelsBackend->getScannedChannels($source));
         $existingChannels = DvrChannel::pluck('mapped_channel_number', 'guide_number');
 
-        echo "#EXTM3U\n\n";
-        foreach($scannedChannels as $channel) {
-            $mappedChannelNum = $existingChannels->get($channel->GuideNumber) ?? $channel->GuideNumber;
-            printf(
-                '#EXTINF:0 channel-id=“%s” channel-number="%s" tvg-chno=“%s” tvg-id="%s" ' .
-                    'tvc-guide-stationid="%s" tvg-name="%s" tvg-logo="%s" group-title="%s",%s' . "\n" .
-                    '%s/devices/%s/channels/%s/stream.mpg' .
-                    "\n\n",
-                $channel->GuideNumber,      // channel-id
-                $mappedChannelNum,          // channel-number
-                $mappedChannelNum,          // tvg-chno
-                $mappedChannelNum,          // tvg-id
-                $channel->Station ?? '',    // tvc-guide-stationid
-                $channel->GuideName,        // tvg-name
-                $channel->Logo ?? '',       // tvg-logo
-                '',                         // group-title
-                $channel->GuideName,
-                $this->channelsBackend->getBaseUrl(),
-                $source,
-                $channel->GuideNumber);
+        $scannedChannels->map(function($channel) use ($source, $existingChannels) {
+            $channel->mappedChannelNum =
+                $existingChannels->get($channel->GuideNumber) ?? $channel->GuideNumber;
+        });
 
-        }
+        return view('channels.playlist.full', [
+            'scannedChannels' => $scannedChannels,
+            'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
+            'source' => $source,
+        ]);
 
     }
 

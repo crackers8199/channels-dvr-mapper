@@ -28,9 +28,9 @@ class ChannelsBackendService
         return $this->baseUrl;
     }
 
-    public function getScannedChannels($lineupStr)
+    public function getScannedChannels($source)
     {
-        $url = sprintf('%s/devices/%s/channels?ScanResult=true', $this->baseUrl, $lineupStr);
+        $url = sprintf('%s/devices/%s/channels?ScanResult=true', $this->baseUrl, $source);
         $json = file_get_contents($url);
         return json_decode($json);
     }
