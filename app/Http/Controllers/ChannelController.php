@@ -20,10 +20,10 @@ class ChannelController extends Controller
     // todo: add title tags and whatnot to views
     public function index()
     {
-        $devices = $this->channelsBackend->getDevices();
+        $sources = $this->channelsBackend->getDevices();
 
-        if($devices->count() > 0) {
-            return view('index', ['devices' => $devices]);
+        if($sources->count() > 0) {
+            return view('index', ['sources' => $sources]);
         }
         else {
             return view('empty', ['channelsBackendUrl' => $this->channelsBackend->getBaseUrl()]);
@@ -32,12 +32,12 @@ class ChannelController extends Controller
 
     public function list(Request $request)
     {
-        $channelLineup = $request->lineup;
-        if(!$this->channelsBackend->isValidDevice($channelLineup)) {
-            throw new Exception('Invalid device detected.');
+        $source = $request->source;
+        if(!$this->channelsBackend->isValidDevice($source)) {
+            throw new Exception('Invalid source detected.');
         }
 
-        $channels = $this->channelsBackend->getScannedChannels($channelLineup);
+        $channels = $this->channelsBackend->getScannedChannels($source);
 
         $existingChannels = DvrChannel::pluck('mapped_channel_number', 'guide_number');
 
@@ -56,8 +56,8 @@ class ChannelController extends Controller
         return view('channels',
             [
                 'channels' => $channels,
-                'channelLineup' => $channelLineup,
-                'devices' => $this->channelsBackend->getDevices(),
+                'source' => $source,
+                'sources' => $this->channelsBackend->getDevices(),
             ]
         );
 
@@ -65,9 +65,9 @@ class ChannelController extends Controller
 
     public function map(Request $request)
     {
-        $channelLineup = $request->lineup;
-        if(!$this->channelsBackend->isValidDevice($channelLineup)) {
-            throw new Exception('Invalid device detected.');
+        $source = $request->source;
+        if(!$this->channelsBackend->isValidDevice($source)) {
+            throw new Exception('Invalid source detected.');
         }
 
         $channelMaps = $request->except('_token');
@@ -87,18 +87,18 @@ class ChannelController extends Controller
             [ 'mapped_channel_number' ]
         );
 
-        return redirect(route('getChannelMapUI', ['lineup' => $channelLineup]));
+        return redirect(route('getChannelMapUI', ['source' => $source]));
 
     }
 
     public function playlist(Request $request)
     {
-        $channelLineup = $request->lineup;
-        if(!$this->channelsBackend->isValidDevice($channelLineup)) {
-            throw new Exception('Invalid device detected.');
+        $source = $request->source;
+        if(!$this->channelsBackend->isValidDevice($source)) {
+            throw new Exception('Invalid source detected.');
         }
 
-        $scannedChannels = $this->channelsBackend->getScannedChannels($channelLineup);
+        $scannedChannels = $this->channelsBackend->getScannedChannels($source);
         $existingChannels = DvrChannel::pluck('mapped_channel_number', 'guide_number');
 
         echo "#EXTM3U\n\n";
@@ -119,7 +119,7 @@ class ChannelController extends Controller
                 '',                         // group-title
                 $channel->GuideName,
                 $this->channelsBackend->getBaseUrl(),
-                $channelLineup,
+                $source,
                 $channel->GuideNumber);
 
         }
@@ -128,9 +128,9 @@ class ChannelController extends Controller
 
     public function xmltv(Request $request)
     {
-        $channelLineup = $request->lineup;
-        if(!$this->channelsBackend->isValidDevice($channelLineup)) {
-            throw new Exception('Invalid device detected.');
+        $source = $request->source;
+        if(!$this->channelsBackend->isValidDevice($source)) {
+            throw new Exception('Invalid source detected.');
         }
 
         $guideDays = env('CHANNELS_GUIDE_DAYS', config('channels.max_guide_days'));
@@ -153,7 +153,7 @@ class ChannelController extends Controller
         while($guideTime < $endGuideTime) {
 
             $guideData = $this->channelsBackend
-                ->getGuideData($channelLineup, $guideTime->timestamp, $guideChunkDuration);
+                ->getGuideData($source, $guideTime->timestamp, $guideChunkDuration);
 
             foreach($guideData as $data) {
 

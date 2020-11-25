@@ -1,15 +1,15 @@
 <html>
 <body>
 
-<p>available backend lineups:
-    @foreach($devices as $device)
-        | <a href="{{ route('getChannelMapUI', ['lineup' => $device]) }}">{{ $device }}</a>
+<p>available backend sources:
+    @foreach($sources as $source)
+        | <a href="{{ route('getChannelMapUI', ['source' => $source]) }}">{{ $source }}</a>
     @endforeach
     |</p>
 
-<h1>Mapping Channels for Lineup: {{ $channelLineup }}</h1>
+<h1>Mapping Channels for Source: {{ $source }}</h1>
 
-<form action="{{ route('applyChannelMap', ['lineup' => $channelLineup]) }}" method="POST">
+<form action="{{ route('applyChannelMap', ['source' => $source]) }}" method="POST">
 @csrf
 
 <table border="1" cellpadding="5">

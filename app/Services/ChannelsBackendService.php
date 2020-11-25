@@ -35,11 +35,11 @@ class ChannelsBackendService
         return json_decode($json);
     }
 
-    public function getGuideData($lineupStr, $startTimestamp, $duration)
+    public function getGuideData($device, $startTimestamp, $duration)
     {
         $url = sprintf(
             'http://192.168.88.165:8089/devices/%s/guide?time=%d&duration=%d',
-            $lineupStr, $startTimestamp, $duration);
+            $device, $startTimestamp, $duration);
         $json = file_get_contents($url);
         return json_decode($json);
     }

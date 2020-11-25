@@ -19,5 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/channels/{lineup}/playlist', [ChannelController::class, 'playlist']);
-Route::get('/channels/{lineup}/xmltv', [ChannelController::class, 'xmltv']);
+Route::get('/channels/{source}/playlist', [ChannelController::class, 'playlist']);
+Route::get('/channels/{source}/xmltv', [ChannelController::class, 'xmltv']);
