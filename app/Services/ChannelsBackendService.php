@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use GuzzleHttp\Client;
+
 class ChannelsBackendService
 {
     protected $baseUrl;
+    protected $httpClient;
 
     public function __construct()
     {
@@ -21,6 +24,8 @@ class ChannelsBackendService
                 env('CHANNELS_BACKEND_IP'), env('CHANNELS_BACKEND_PORT')
             );
 
+        $this->httpClient = new Client(['base_uri' => $this->baseUrl]);
+
     }
 
     public function getBaseUrl()
@@ -30,18 +35,16 @@ class ChannelsBackendService
 
     public function getScannedChannels($source)
     {
-        $url = sprintf('%s/devices/%s/channels?ScanResult=true', $this->baseUrl, $source);
-        $json = file_get_contents($url);
+        $stream = $this->httpClient->get(sprintf('/devices/%s/channels?ScanResult=true', $source));
+        $json = $stream->getBody()->getContents();
         return json_decode($json);
     }
 
     public function getGuideData($device, $startTimestamp, $duration)
     {
-        $url = sprintf(
-            '%s/devices/%s/guide?time=%d&duration=%d',
-            $this->baseUrl, $device, $startTimestamp, $duration
-        );
-        $json = file_get_contents($url);
+        $stream = $this->httpClient->get(
+            sprintf('/devices/%s/guide?time=%d&duration=%d', $device, $startTimestamp, $duration));
+        $json = $stream->getBody()->getContents();
         return json_decode($json);
     }
 
@@ -52,8 +55,8 @@ class ChannelsBackendService
 
     public function getDevices($allowAny = false)
     {
-        $url = sprintf('%s/devices', $this->baseUrl);
-        $json = file_get_contents($url);
+        $stream = $this->httpClient->get(sprintf('/devices'));
+        $json = $stream->getBody()->getContents();
 
         $devices = collect(json_decode($json))->pluck('DeviceID');
         if($allowAny) {
