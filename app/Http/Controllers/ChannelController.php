@@ -124,27 +124,36 @@ class ChannelController extends Controller
             throw new Exception('Invalid source detected.');
         }
 
-        $guideDays = env('CHANNELS_GUIDE_DAYS', config('channels.max_guide_days'));
-        if($guideDays > config('channels.max_guide_days')) {
-            $guideDays = config('channels.max_guide_days');
+        if($request->duration === null) {
+            $durationDays = intval($request->days) ?? 0;
+            $durationHours = intval($request->hours) ?? 0;
+            $durationMinutes = intval($request->minutes) ?? 0;
+            $durationSeconds = intval($request->seconds) ?? config('channels.guideDuration');
+
+            $duration = ($durationDays * 86400) + ($durationHours * 3600) +
+                ($durationMinutes * 60) + $durationSeconds;
+        }
+        else {
+            $duration = intval($request->duration);
         }
 
-        $guideChunkDuration =
-            env('CHANNELS_GUIDE_DURATION', config('channels.max_guide_chunk_seconds'));
+        $guideDuration = intval(
+            min($duration, config('channels.guideDuration'))
+        );
 
-        if($guideChunkDuration > config('channels.max_guide_chunk_seconds')) {
-            $guideChunkDuration = config('channels.max_guide_chunk_seconds');
-        }
-
-        $endGuideTime = Carbon::now()->addDays($guideDays);
         $guideTime = Carbon::now();
+        $endGuideTime = $guideTime->copy()->addSeconds($guideDuration);
 
         $existingChannels = DvrChannel::pluck('guide_number', 'mapped_channel_number');
+
+        $guideChunkSize = min(
+            $guideDuration, config('channels.backendChunkSize')
+        );
 
         while($guideTime < $endGuideTime) {
 
             $guideData = $this->channelsBackend
-                ->getGuideData($source, $guideTime->timestamp, $guideChunkDuration);
+                ->getGuideData($source, $guideTime->timestamp, $guideChunkSize);
 
             foreach($guideData as &$data) {
                 $channelId =
@@ -180,7 +189,7 @@ class ChannelController extends Controller
             }
 
             echo view('channels.xmltv.full', ['guideData' => $guideData]);
-            $guideTime->addSeconds($guideChunkDuration);
+            $guideTime->addSeconds($guideChunkSize);
 
         }
 
