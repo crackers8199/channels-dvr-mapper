@@ -15,6 +15,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ $channelsBackendUrl }}">Channels DVR BackEnd</a>
             </li>
+            @if(isset($sources))
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Available Sources
@@ -25,6 +26,7 @@
                     @endforeach
                 </div>
             </li>
+            @endif
             @if(isset($source))
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
