@@ -6,7 +6,9 @@ use GuzzleHttp\Client;
 
 class ChannelsBackendService
 {
-    protected $baseUrl;
+    protected $externalUrl;
+    protected $internalUrl;
+
     protected $httpClient;
 
     public function __construct()
@@ -19,18 +21,24 @@ class ChannelsBackendService
             die('CHANNELS_BACKEND_PORT .env variable must be set. Cannot continue.');
         }
 
-        $this->baseUrl =
+        $this->externalUrl =
             sprintf("http://%s:%s",
                 env('CHANNELS_BACKEND_IP'), env('CHANNELS_BACKEND_PORT')
             );
 
-        $this->httpClient = new Client(['base_uri' => $this->baseUrl]);
+        $this->internalUrl = "http://channels-backend:8089";
+        $this->httpClient = new Client(['base_uri' => $this->internalUrl]);
 
     }
 
-    public function getBaseUrl()
+    public function getExternalUrl()
     {
-        return $this->baseUrl;
+        return $this->externalUrl;
+    }
+
+    public function getInternalUrl()
+    {
+        return $this->internalUrl;
     }
 
     public function getScannedChannels($source)

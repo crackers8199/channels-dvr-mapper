@@ -24,11 +24,13 @@ class ChannelController extends Controller
         if($sources->count() > 0) {
             return view('layouts.main', [
                 'sources' => $sources,
-                'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
+                'channelsBackendUrl' => $this->channelsBackend->getExternalUrl(),
             ]);
         }
         else {
-            return view('empty', ['channelsBackendUrl' => $this->channelsBackend->getBaseUrl()]);
+            return view('empty',
+                ['channelsBackendUrl' => $this->channelsBackend->getExternalUrl()]
+            );
         }
     }
 
@@ -60,7 +62,7 @@ class ChannelController extends Controller
                 'channels' => $channels,
                 'source' => $source,
                 'sources' => $this->channelsBackend->getDevices(),
-                'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
+                'channelsBackendUrl' => $this->channelsBackend->getExternalUrl(),
             ]
         );
 
@@ -96,6 +98,12 @@ class ChannelController extends Controller
 
     public function playlist(Request $request)
     {
+        if(isset($request->external) && $request->external !== 'external') {
+            die('Invalid URL parameter detected.');
+        }
+
+        $external = isset($request->external);
+
         $source = $request->source;
         if(!$this->channelsBackend->isValidDevice($source)) {
             throw new Exception('Invalid source detected.');
@@ -111,7 +119,11 @@ class ChannelController extends Controller
 
         return view('channels.playlist.full', [
             'scannedChannels' => $scannedChannels,
-            'channelsBackendUrl' => $this->channelsBackend->getBaseUrl(),
+            'channelsBackendUrl' => (
+                $external ?
+                    $this->channelsBackend->getExternalUrl() :
+                    $this->channelsBackend->getInternalUrl()
+            ),
             'source' => $source,
         ]);
 

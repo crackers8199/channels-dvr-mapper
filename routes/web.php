@@ -23,7 +23,10 @@ Route::post('/channels/{source}/map', [ChannelController::class, 'map'])
     ->name('applyChannelMap');
 
 Route::get('/channels/{source}/playlist', [ChannelController::class, 'playlist'])
-    ->name('sourcePlaylist');
+    ->name('internalPlaylist');
+
+Route::get('/channels/{source}/playlist/{external?}', [ChannelController::class, 'playlist'])
+    ->name('externalPlaylist');
 
 Route::get('/channels/{source}/xmltv', [ChannelController::class, 'xmltv'])
     ->name('sourceXmlTv');
