@@ -13,8 +13,8 @@ class ChannelsBackendService
 
     public function __construct()
     {
-        if(env('CHANNELS_BACKEND_IP') === null) {
-            die('CHANNELS_BACKEND_IP .env variable must be set. Cannot continue.');
+        if(env('CHANNELS_SERVER_IP') === null) {
+            die('CHANNELS_SERVER_IP .env variable must be set. Cannot continue.');
         }
 
         if(env('CHANNELS_BACKEND_PORT') === null) {
@@ -23,7 +23,7 @@ class ChannelsBackendService
 
         $this->externalUrl =
             sprintf("http://%s:%s",
-                env('CHANNELS_BACKEND_IP'), env('CHANNELS_BACKEND_PORT')
+                env('CHANNELS_SERVER_IP'), env('CHANNELS_BACKEND_PORT')
             );
 
         $this->internalUrl = "http://channels-backend:8089";

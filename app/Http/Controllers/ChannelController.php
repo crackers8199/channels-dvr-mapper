@@ -144,6 +144,11 @@ class ChannelController extends Controller
 
             $duration = ($durationDays * 86400) + ($durationHours * 3600) +
                 ($durationMinutes * 60) + $durationSeconds;
+
+            // duration cannot be zero
+            if($duration == 0) {
+                $duration = config('channels.guideDuration');
+            }
         }
         else {
             $duration = intval($request->duration);
