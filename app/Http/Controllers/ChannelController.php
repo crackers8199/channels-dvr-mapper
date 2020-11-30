@@ -111,11 +111,38 @@ class ChannelController extends Controller
 
         $scannedChannels = collect($this->channelsBackend->getScannedChannels($source));
         $existingChannels = DvrChannel::pluck('mapped_channel_number', 'guide_number');
+        $mirroredChannels = collect();
 
-        $scannedChannels->map(function($channel) use ($source, $existingChannels) {
-            $channel->mappedChannelNum =
-                $existingChannels->get($channel->GuideNumber) ?? $channel->GuideNumber;
+        $scannedChannels = $scannedChannels->map(function($channel, $key) use
+            ($source, $existingChannels, &$mirroredChannels, &$scannedChannels) {
+            $mappedChs = collect(
+                explode(
+                    '|',
+                    ($existingChannels->get($channel->GuideNumber) ?? $channel->GuideNumber)
+                )
+            );
+
+            if(count($mappedChs) > 1) {
+                foreach($mappedChs as $mappedCh) {
+                    $newCh = clone $channel;
+                    $newCh->mappedChannelNum = $mappedCh;
+                    $mirroredChannels->push($newCh);
+                }
+
+                return null;
+
+            }
+            else {
+                $channel->mappedChannelNum = $mappedChs->first();
+                return $channel;
+            }
+
+
         });
+
+        $scannedChannels = $scannedChannels->filter(function($ch) {
+            return($ch !== null);
+        })->concat($mirroredChannels);
 
         return view('channels.playlist.full', [
             'scannedChannels' => $scannedChannels,
