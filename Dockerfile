@@ -1,4 +1,4 @@
-FROM php:apache-buster
+FROM php:8.0-apache-bullseye
 
 # Arguments defined in docker-compose.yml
 ARG user
