@@ -77,7 +77,8 @@ class ChannelController extends Controller
 
         $data = [];
         foreach($channelMaps as $guideNumberIdx => $mappedNumber) {
-            list(,,,$guideNumber) = explode('_', $guideNumberIdx);
+            list(,,,$guideNumber) = explode('_', $guideNumberIdx, 4);
+            $guideNumber = str_replace('_', '.', $guideNumber);
             $data[] = [
                 'guide_number' => $guideNumber,
                 'mapped_channel_number' => $mappedNumber ?? $guideNumber,
